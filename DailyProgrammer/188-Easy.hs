@@ -17,6 +17,45 @@
 
 {-Note if is yyyy it is a full 4 digit year. If it is yy then it is only the last 2 digits of the year. Years only go between 1950-2049.-}
 
-{-
-- open file. map over the lines the change the date and 
--}
+import Data.Monoid
+import Data.Foldable
+import Data.Time
+import System.Locale
+import Text.Printf
+
+possibleFormats :: [String]
+possibleFormats =
+    -- yyyy-mm-dd
+    [ "%F"
+    -- mm/dd/yy
+    , "%x"
+    -- mm#yy#dd
+    , "%m#%y#%d"
+    --dd*mm*yyyy
+    , "%d*%m*%Y"
+    --(month word) dd, yy
+    , "%b %d, %y"
+    --(month word) dd, yyyy
+    , "%b %d, %Y"
+    ]
+
+tryParse :: String -> Maybe Day
+tryParse str = do
+    parsed <- getFirst $ foldMap (First . parse) possibleFormats
+    let (y, m, d) = toGregorian parsed
+    return $
+        if y > 2049
+        then fromGregorian (y - 100) m d
+        else parsed
+    where
+        parse :: String -> Maybe Day
+        parse f = parseTime defaultTimeLocale f str
+
+main :: IO ()
+main = do
+    contents <- lines `fmap` readFile "wrongdates.txt"
+    forM_ contents $ \date ->
+        case tryParse date of
+            Just d -> print d
+            Nothing -> do
+                printf "Failed to parse: %s" date
