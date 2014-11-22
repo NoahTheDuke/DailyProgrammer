@@ -26,5 +26,5 @@ main = do
     putStrLn text
     g <- newStdGen
     let strs = insertAt width "\n" $ concatMap (directions !!) $ take (width * height) $ randomRs (0, length directions-1) g
-    writeFile (show width ++ "-" ++ show height ++ ".txt") $ text ++ "\n" ++ strs
+    writeFile ("188-Maze.txt") $ text ++ "\n" ++ strs
     putStr strs
