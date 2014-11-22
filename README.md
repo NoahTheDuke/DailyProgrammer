@@ -1,4 +1,4 @@
-HaskellExperiments
+Daily Programmer problems
 ==================
 
-Just a repository for fucking around with Haskell. Will contain any random scripts or programs I write while I learn this strange and beautiful language.
+My repo for working through the [/r/DailyProgrammer](https://www.reddit.com/r/dailyprogrammer) problems. The going is slow, and the not every problem will be tackled, but we'll see where this goes!
