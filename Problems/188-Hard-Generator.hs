@@ -2,7 +2,7 @@ import System.Random
 import Control.Monad
 
 directions :: [String]
-directions = ["<", ">", "^", "V"]
+directions = ["<", ">", "^", "v"]
 
 width :: Int
 width = 45
