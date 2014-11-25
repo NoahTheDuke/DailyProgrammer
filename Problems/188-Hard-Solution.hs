@@ -14,8 +14,10 @@ data Board = Board { width :: Int
 
 {-main :: IO ()-}
 main = do
-        contents <- readFile "test.txt"
-        print . map readInt . words $ contents
+        contents <- readFile "188-Maze.txt"
+        let (size, maze) = break (== '\n') contents
+            [width, height] = map(\x -> read x :: Int) (words size)
+            board = Board width height (filter (/= '\n') maze)
+        putStrLn $ show board
 
-readInt :: String -> Int
-readInt = read
+parseBoard b i = print
