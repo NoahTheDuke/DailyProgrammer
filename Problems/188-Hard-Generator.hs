@@ -1,5 +1,6 @@
 import System.Random
 import Control.Monad
+import qualified Data.Text as T
 
 directions :: [String]
 directions = ["<", ">", "^", "v"]
@@ -25,6 +26,6 @@ main :: IO ()
 main = do
     putStrLn text
     g <- newStdGen
-    let strs = insertAt width "\n" $ concatMap (directions !!) $ take (width * height) $ randomRs (0, length directions-1) g
+    let strs = T.unpack $ T.strip $ T.pack $ insertAt width "\n" $ concatMap (directions !!) $ take (width * height) $ randomRs (0, length directions-1) g
     writeFile ("188-Maze.txt") $ text ++ "\n" ++ strs
     putStr strs
