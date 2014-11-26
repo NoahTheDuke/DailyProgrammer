@@ -10,14 +10,28 @@ data Board = Board { width :: Int
                    , board :: String
                    } deriving (Show)
 
-{-walkboard board start =-}
-
-{-main :: IO ()-}
+main :: IO ()
 main = do
-        contents <- readFile "188-Maze.txt"
-        let (size, maze) = break (== '\n') contents
-            [width, height] = map(\x -> read x :: Int) (words size)
-            board = Board width height (filter (/= '\n') maze)
-        putStrLn $ show board
+    contents <- readFile "188-Maze.txt"
+    let (size, maze) = break (== '\n') contents
+        [width, height] = map(\x -> read x :: Int) (words size)
+        bd = Board width height maze
+    putStrLn $ show bd
+    print $ parseBoard bd 0 width
 
-parseBoard b i = print
+parseBoard :: Num a => Board -> Int -> a -> a
+parseBoard board init width = followDirection (inside board init) width
+
+followDirection :: Num a => Char -> a -> a
+followDirection arrow width
+    | arrow == '<' = -1
+    | arrow == '>' = 1
+    | arrow == '^' = -1 * width
+    | arrow == 'v' = width
+    | otherwise = 1
+
+inside :: Board -> Int -> Char
+inside x w = getBoard x !! w
+
+getBoard :: Board -> String
+getBoard = board
