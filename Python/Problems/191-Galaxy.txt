@@ -1,0 +1,23 @@
+                     
+ .G...A..A....A...AG.
+ .AAAG.....AAA..A...G
+ A.A.G.G.....A..AG.A.
+ GA.A...A..A..A.A..AG
+ .A.AA....A.....A.A.G
+ .A.A..A.GAAA.....A..
+ ..GGAA.AA.A..A..A...
+ ...G....G..A..GAAAA.
+ AAAAA.....AAGA.AGA..
+ AA.A..A.AA.A.....AA.
+ ......AAG.A..G...A.G
+ ...G...AGA.A.AA.G.A.
+ ...AGA...AA..AA.A..A
+ G...A.....A........G
+ .A.AA.A....A..G...A.
+ .A....AA...A......GA
+ AAGG....A.AAA.A.....
+ .A....G..A...G..A..A
+ .A...A.AAA...AA.A.AA
+ AAA.A......GAA..AA.A                     
+                     
+
