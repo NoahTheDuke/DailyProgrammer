@@ -6,8 +6,8 @@ import heapq as hq
 
 def main():
     size = int(sys.argv[1])
-    start = divmod(int(sys.argv[2]), size)
-    end = divmod(size, int(sys.argv[3]))
+    start = int(sys.argv[2])
+    end = int(sys.argv[3])
     print("Size of the galazy: {}".format(size))
     print("Start: {}, End: {}".format(start, end))
     galaxy = generate(size, start, end)
@@ -41,24 +41,21 @@ def generate(size, start, end):
         for le in range(size):
             new__galaxy.append(galaxy.pop())
         new_galaxy.append(new__galaxy)
-    new_galaxy = process_gravity_well(new_galaxy)
-    return new_galaxy
+    return process_gravity_well(new_galaxy)
 
 def process_gravity_well(galaxy):
     dirs = [(-1, -1), (0, -1), (1, -1), (-1, 0), (1, 0), (-1, 1), (0, 1), (1, 1)]
     print(galaxy)
-    for line in galaxy:
-        for space in line:
+    for lx, line in enumerate(galaxy):
+        for sx, space in enumerate(line):
             if "G" in space:
-                fy, fx = line, space
+                fy, fx = lx, sx
                 for d in dirs:
                     x, y = d
                     x += fx
                     y += fy
                     if x < 0 or x >= len(galaxy[0]) or y < 0 or y >= len(galaxy[0]):
                         continue
-                    print(str(d))
-                    print(str(space))
                     if galaxy[y][x] == ".":
                         galaxy[y][x] = "W"
     return galaxy
@@ -79,7 +76,7 @@ def pathfind(galaxy, start, end):
 
 def neighbors(galaxy, from_space):
     dirs = [(-1, -1), (0, -1), (1, -1), (-1, 0), (1, 0), (-1, 1), (0, 1), (1, 1)]
-    moves = []
+    neighbor = []
     for d in dirs:
         x, y = from_space
         dx, dy = d
@@ -87,21 +84,14 @@ def neighbors(galaxy, from_space):
         y += dy
         if x < 0 or x >= len(galaxy[0]) or y < 0 or y >= len(galaxy[0]):
             continue
-        if is_free(galaxy, x, y):
-            moves.append((x, y))
-        else:
+        if galaxy[fy][fx] == "A":
             continue
-    return moves
+        if galaxy[fy][fx] == "W":
+            continue
+        else:
+            neighbor.append((x, y))
+    return neighbor
 
-def is_free(galaxy, fx, fy):
-    if fx < 0 or fx >= len(galaxy[0]) or fy < 0 or fy >= len(galaxy[0]):
-        return False
-    print(str(fx), str(fy))
-    if galaxy[fy][fx] == "A":
-        return False
-    if galaxy[fy][fx] == "W":
-        return False
-    return True
 
 if __name__ == "__main__":
     main()
