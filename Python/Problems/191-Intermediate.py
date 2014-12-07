@@ -6,8 +6,8 @@ import heapq as hq
 
 def main():
     size = int(sys.argv[1])
-    start = int(sys.argv[2])
-    end = int(sys.argv[3])
+    start = (int(sys.argv[2]), int(sys.argv[3]))
+    end = (int(sys.argv[4]), int(sys.argv[5]))
     print("Size of the galazy: {}".format(size))
     print("Start: {}, End: {}".format(start, end))
     galaxy = generate(size, start, end)
@@ -16,7 +16,6 @@ def main():
     result = pathfind(galaxy, start, end)
     if result:
         print(str(result))
-        print("Found a path!")
 
 def print_galaxy(galaxy):
     place = []
@@ -24,28 +23,30 @@ def print_galaxy(galaxy):
         place.append(" ".join(lines))
     return place
 
-def num_to_char(num):
-    if num < 31:
-        return "A"
-    elif num < 41:
-        return "G"
-    else:
-        return "."
-
 def generate(size, start, end):
     fullsize = size * size
-    galaxy = [num_to_char(x) for x in [random.randrange(1,101) for _ in range(fullsize)]]
+    asteroids = int(fullsize * 0.20)
+    gravity_wells = int(fullsize * 0.05)
+    empty_space = fullsize - asteroids - gravity_wells
+    galaxy = ["A"] * asteroids + ["G"] * gravity_wells + ["."] * empty_space
+    random.shuffle(galaxy)
     new_galaxy = []
     for el in range(size):
-        new__galaxy = []
+        galaxy_line = []
         for le in range(size):
-            new__galaxy.append(galaxy.pop())
-        new_galaxy.append(new__galaxy)
-    return process_gravity_well(new_galaxy)
+            galaxy_line.append(galaxy.pop())
+        new_galaxy.append(galaxy_line)
+    return process_gravity_well(place_start_end_points(new_galaxy, start, end))
+
+def place_start_end_points(galaxy, start, end):
+    fx, fy = start
+    tx, ty = end
+    galaxy[fy][fx] = "S"
+    galaxy[ty][tx] = "E"
+    return galaxy
 
 def process_gravity_well(galaxy):
     dirs = [(-1, -1), (0, -1), (1, -1), (-1, 0), (1, 0), (-1, 1), (0, 1), (1, 1)]
-    print(galaxy)
     for lx, line in enumerate(galaxy):
         for sx, space in enumerate(line):
             if "G" in space:
@@ -68,11 +69,19 @@ def pathfind(galaxy, start, end):
 
     while frontier:
         current = hq.heappop(frontier)
+        print("current: {}".format(current))
+        if current == end:
+            break
         for potential in neighbors(galaxy, current):
+            print("potential: {}".format(potential))
             if potential not in came_from:
-                hq.heappush(frontier, potential)
+                priority = heuristic(end, potential)
+                hq.heappush(frontier, priority)
                 came_from[potential] = current
-    return came_from
+
+def heuristic(a, b):
+    # Manhattan distance on a square grid
+    return abs(a[1] - b[1]) + abs(a[0] - b[0])
 
 def neighbors(galaxy, from_space):
     dirs = [(-1, -1), (0, -1), (1, -1), (-1, 0), (1, 0), (-1, 1), (0, 1), (1, 1)]
@@ -84,9 +93,9 @@ def neighbors(galaxy, from_space):
         y += dy
         if x < 0 or x >= len(galaxy[0]) or y < 0 or y >= len(galaxy[0]):
             continue
-        if galaxy[fy][fx] == "A":
+        if galaxy[y][x] == "A":
             continue
-        if galaxy[fy][fx] == "W":
+        if galaxy[y][x] == "W":
             continue
         else:
             neighbor.append((x, y))
