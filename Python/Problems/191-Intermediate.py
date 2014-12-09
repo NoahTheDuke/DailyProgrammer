@@ -42,6 +42,12 @@ class GalaxyGrid:
     def cost(self, a, b):
         return self.weights.get(b, 1)
 
+    def print_tile(self, x, y):
+        tile = "."
+        if (x, y) in self.characters:
+            tile = self.characters.get((x, y), 1)
+        return tile
+
     def print_grid(self):
         results = []
         for y in range(self.height):
@@ -50,12 +56,6 @@ class GalaxyGrid:
                 line.append(self.print_tile(x, y))
             results.append(" ".join(line))
         return results
-
-    def print_tile(self, x, y):
-        tile = "."
-        if (x, y) in self.characters:
-            tile = self.characters.get((x, y), 1)
-        return tile
 
 def main():
     size = int(sys.argv[1])
@@ -69,8 +69,11 @@ def main():
     for lines in galaxy_map:
         print(str(lines))
     result = astar_pathfind(galaxy, start, end)
-    if result:
-        print(reconstruct_path(result, start, end))
+    result_map = reconstruct_path(galaxy, result, start, end)
+    galaxy_map = result_map.print_grid()
+    print()
+    for lines in galaxy_map:
+        print(str(lines))
 
 def generate(graph, size, start, end):
     fullsize = size * size
@@ -87,6 +90,7 @@ def generate(graph, size, start, end):
         if potential not in graph.characters:
             graph.characters[potential] = "G"
             graph.walls.append(potential)
+            graph.walls.append(graph.neighbors(potential))
             gravity_wells = gravity_wells - 1
     graph.characters[start] = "S"
     if start in graph.walls:
@@ -95,14 +99,6 @@ def generate(graph, size, start, end):
     if end in graph.walls:
         graph.walls.remove(end)
     return graph
-    #return process_gravity_well(place_start_end_points(new_galaxy, start, end))
-
-def place_start_end_points(galaxy, start, end):
-    fx, fy = start
-    tx, ty = end
-    galaxy[fy][fx] = "S"
-    galaxy[ty][tx] = "E"
-    return galaxy
 
 def process_gravity_well(galaxy):
     dirs = [(-1, -1), (0, -1), (1, -1), (-1, 0), (1, 0), (-1, 1), (0, 1), (1, 1)]
@@ -143,13 +139,13 @@ def astar_pathfind(galaxy, start, end):
                 came_from[potential] = current
     return came_from#, cost_so_far
 
-def reconstruct_path(came_from, start, end):
+def reconstruct_path(graph, came_from, start, end):
     current = end
     path = [current]
     while current != start:
         current = came_from[current]
-        path.append(current)
-    return path
+        graph.characters[current] = "O"
+    return graph
 
 def heuristic(f, t):
     fx, fy = f
