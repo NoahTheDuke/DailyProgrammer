@@ -4,39 +4,98 @@ import sys
 import random
 import heapq as hq
 
+
+class PriorityQueue:
+    def __init__(self):
+        self.elements = []
+
+    def empty(self):
+        return len(self.elements) == 0
+
+    def put(self, item, priority):
+        hq.heappush(self.elements, (priority, item))
+
+    def get(self):
+        return hq.heappop(self.elements)[1]
+
+class GalaxyGrid:
+    def __init__(self, width, height):
+        self.width = width
+        self.height = height
+        self.weights = {}
+        self.characters = {}
+        self.walls = []
+
+    def in_bounds(self, id):
+        (x, y) = id
+        return 0 <= x < self.width and 0 <= y < self.height
+
+    def passable(self, id):
+        return id not in self.walls
+
+    def neighbors(self, id):
+        x, y = id
+        results = [(x+1, y), (x, y-1), (x-1, y), (x, y+1), (x+1, y+1), (x-1, y-1), (x-1, y+1), (x-1, y+1)]
+        if (x + y) % 2 == 0: results.reverse()
+        return filter(self.passable, filter(self.in_bounds, results))
+
+    def cost(self, a, b):
+        return self.weights.get(b, 1)
+
+    def print_grid(self):
+        results = []
+        for y in range(self.height):
+            line = []
+            for x in range(self.width):
+                line.append(self.print_tile(x, y))
+            results.append(" ".join(line))
+        return results
+
+    def print_tile(self, x, y):
+        tile = "."
+        if (x, y) in self.characters:
+            tile = self.characters.get((x, y), 1)
+        return tile
+
 def main():
     size = int(sys.argv[1])
     start = (int(sys.argv[2]), int(sys.argv[3]))
     end = (int(sys.argv[4]), int(sys.argv[5]))
     print("Size of the galazy: {}".format(size))
     print("Start: {}, End: {}".format(start, end))
-    galaxy = generate(size, start, end)
-    for row in print_galaxy(galaxy):
-        print(row)
-    result = pathfind(galaxy, start, end)
+    galaxy = GalaxyGrid(size, size)
+    galaxy = generate(galaxy, size, start, end)
+    galaxy_map = galaxy.print_grid()
+    for lines in galaxy_map:
+        print(str(lines))
+    result = astar_pathfind(galaxy, start, end)
     if result:
-        print(str(result))
+        print(reconstruct_path(result, start, end))
 
-def print_galaxy(galaxy):
-    place = []
-    for lines in galaxy:
-        place.append(" ".join(lines))
-    return place
-
-def generate(size, start, end):
+def generate(graph, size, start, end):
     fullsize = size * size
     asteroids = int(fullsize * 0.20)
     gravity_wells = int(fullsize * 0.05)
-    empty_space = fullsize - asteroids - gravity_wells
-    galaxy = ["A"] * asteroids + ["G"] * gravity_wells + ["."] * empty_space
-    random.shuffle(galaxy)
-    new_galaxy = []
-    for el in range(size):
-        galaxy_line = []
-        for le in range(size):
-            galaxy_line.append(galaxy.pop())
-        new_galaxy.append(galaxy_line)
-    return process_gravity_well(place_start_end_points(new_galaxy, start, end))
+    while asteroids > 0:
+        potential = (random.randrange(0, size), random.randrange(0, size))
+        if potential not in graph.characters:
+            graph.characters[potential] = "A"
+            graph.walls.append(potential)
+            asteroids = asteroids - 1
+    while gravity_wells > 0:
+        potential = (random.randrange(0, size), random.randrange(0, size))
+        if potential not in graph.characters:
+            graph.characters[potential] = "G"
+            graph.walls.append(potential)
+            gravity_wells = gravity_wells - 1
+    graph.characters[start] = "S"
+    if start in graph.walls:
+        graph.walls.remove(start)
+    graph.characters[end] = "E"
+    if end in graph.walls:
+        graph.walls.remove(end)
+    return graph
+    #return process_gravity_well(place_start_end_points(new_galaxy, start, end))
 
 def place_start_end_points(galaxy, start, end):
     fx, fy = start
@@ -61,45 +120,41 @@ def process_gravity_well(galaxy):
                         galaxy[y][x] = "W"
     return galaxy
 
-def pathfind(galaxy, start, end):
-    frontier = []
-    hq.heappush(frontier, start)
+def astar_pathfind(galaxy, start, end):
+    frontier = PriorityQueue()
+    frontier.put(start, 0)
     came_from = {}
+    cost_so_far = {}
     came_from[start] = None
+    cost_so_far[start] = 0
 
-    while frontier:
-        current = hq.heappop(frontier)
-        print("current: {}".format(current))
+    while not frontier.empty():
+        current = frontier.get()
+
         if current == end:
             break
-        for potential in neighbors(galaxy, current):
-            print("potential: {}".format(potential))
-            if potential not in came_from:
-                priority = heuristic(end, potential)
-                hq.heappush(frontier, priority)
+
+        for potential in galaxy.neighbors(current):
+            new_cost = cost_so_far[current] + galaxy.cost(current, potential)
+            if potential not in cost_so_far or new_cost < cost_so_far[potential]:
+                cost_so_far[potential] = new_cost
+                priority = new_cost + heuristic(end, potential)
+                frontier.put(potential, priority)
                 came_from[potential] = current
+    return came_from#, cost_so_far
 
-def heuristic(a, b):
-    # Manhattan distance on a square grid
-    return abs(a[1] - b[1]) + abs(a[0] - b[0])
+def reconstruct_path(came_from, start, end):
+    current = end
+    path = [current]
+    while current != start:
+        current = came_from[current]
+        path.append(current)
+    return path
 
-def neighbors(galaxy, from_space):
-    dirs = [(-1, -1), (0, -1), (1, -1), (-1, 0), (1, 0), (-1, 1), (0, 1), (1, 1)]
-    neighbor = []
-    for d in dirs:
-        x, y = from_space
-        dx, dy = d
-        x += dx
-        y += dy
-        if x < 0 or x >= len(galaxy[0]) or y < 0 or y >= len(galaxy[0]):
-            continue
-        if galaxy[y][x] == "A":
-            continue
-        if galaxy[y][x] == "W":
-            continue
-        else:
-            neighbor.append((x, y))
-    return neighbor
+def heuristic(f, t):
+    fx, fy = f
+    tx, ty = t
+    return abs(fx - tx) + abs(fy - ty)
 
 
 if __name__ == "__main__":
