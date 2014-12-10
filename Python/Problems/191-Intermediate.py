@@ -69,16 +69,19 @@ def main():
     for lines in galaxy_map:
         print(str(lines))
     result = astar_pathfind(galaxy, start, end)
-    result_map = reconstruct_path(galaxy, result, start, end)
-    galaxy_map = result_map.print_grid()
-    print()
-    for lines in galaxy_map:
-        print(str(lines))
+    if end in result:
+        result_map = reconstruct_path(galaxy, result, start, end)
+        galaxy_map = result_map.print_grid()
+        print()
+        for lines in galaxy_map:
+            print(str(lines))
+    else:
+        print("No path found.")
 
 def generate(graph, size, start, end):
     fullsize = size * size
-    asteroids = int(fullsize * 0.20)
-    gravity_wells = int(fullsize * 0.05)
+    asteroids = int(fullsize * .25)
+    gravity_wells = int(fullsize * 0.025)
     while asteroids > 0:
         potential = (random.randrange(0, size), random.randrange(0, size))
         if potential not in graph.characters:
@@ -90,7 +93,8 @@ def generate(graph, size, start, end):
         if potential not in graph.characters:
             graph.characters[potential] = "G"
             graph.walls.append(potential)
-            graph.walls.append(graph.neighbors(potential))
+            for wells in graph.neighbors(potential):
+                graph.walls.append(wells)
             gravity_wells = gravity_wells - 1
     graph.characters[start] = "S"
     if start in graph.walls:
