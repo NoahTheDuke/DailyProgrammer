@@ -1,12 +1,21 @@
 from bs4 import BeautifulSoup
 from urllib.request import urlopen
 
-pages = ['city', 'sufficiently', 'ignorance', 'isnt', 'know', 'ragdoll', 'broken', 'thaumonuclear', 'jesus', 'space', 'yantra', 'daemons', 'abstract', 'death', 'zero', 'aum', 'bare', 'people', 'deeper', 'cabal', 'protagonism', 'scrap', 'inferno', 'darkness', 'direct', 'war', 'real', 'hate', 'thursdayism', 'akheron', 'all', 'rajesh', 'machine', 'work', 'just', 'destructor']
+base = 'http://qntm.org'
+soup = BeautifulSoup(urlopen(base + '/ra').read(), "lxml")
+pages = []
+for content in soup.find_all(attrs={"id": "content"}):
+    for link in content.find_all('a'):
+        temp = link.get('href')
+        if temp[0] == '/':
+            pages.append(temp)
+        else:
+            break
 
-base = 'http://qntm.org/'
-for page in pages:
+contents = ""
+for idx, page in enumerate(pages):
     soup = BeautifulSoup(urlopen(base + page).read(), "lxml")
-
-print(soup.prettify())
-p = soup.find_all(has_class_but_no_id)
-print(p)
+    for content in soup.find_all(attrs={"id": "content"}):
+        with open('ra/{} {}.html'.format(idx, page[1:]), encoding='utf-8', mode='w') as f:
+            f.write(str(soup.select("h2")[0]))
+            f.write(content.prettify())
