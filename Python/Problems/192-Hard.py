@@ -16,6 +16,6 @@ contents = ""
 for idx, page in enumerate(pages):
     soup = BeautifulSoup(urlopen(base + page).read(), "lxml")
     for content in soup.find_all(attrs={"id": "content"}):
-        with open('ra/{} {}.html'.format(idx, page[1:]), encoding='utf-8', mode='w') as f:
+        with open('ra/{:02d} {}.html'.format(idx, page[1:]), encoding='utf-8', mode='w') as f:
             f.write(str(soup.select("h2")[0]))
             f.write(content.prettify())
