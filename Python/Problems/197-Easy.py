@@ -31,8 +31,7 @@ Thanks to /u/TopLOL for the submission!
 import sys
 
 isbn = input("What's the ISBN you wish to verify?\n> ")
-isbn = isbn.lower()
-isbn = [x for x in isbn if x.isdigit() or x is "x"]
+isbn = [x for x in isbn if x.isdigit() or x.lower() == "x"]
 
 isbn_total = 0
 for idx, num in enumerate(isbn):
