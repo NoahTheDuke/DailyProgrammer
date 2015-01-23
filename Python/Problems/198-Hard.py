@@ -78,30 +78,52 @@ import string
 import random
 
 ai_diff = int(input("Welcome to Words with Enemies!\nSelect an AI difficulty:\n1) Easy\n2) Hard\n> "))
-print("You have selected {}! - Let's begin!\n".format(['','Easy', 'Hard'][ai_diff]))
+print("You have selected {}! - Let's begin!".format(['','Easy', 'Hard'][ai_diff]))
 
-turn = 1
+turn = 0
 human_points = 0
 ai_points = 0
-while True:
-    print("Turn {} - You: {}  Computer: {}\n------------------------------".format(turn, human_points, ai_points))
-    human_letters = [random.choice(string.ascii_lowercase) for x in range(0, 10)]
-    print("The letters: {}".format(" ".join(human_letters)))
-    break
+while turn < 5:
+    turn = turn + 1
+    print("\nTurn {} - You: {}  Computer: {}\n------------------------------".format(turn, human_points, ai_points))
+    possible_letters = [random.choice(string.ascii_lowercase) for x in range(0, 12)]
+    print("The letters: {}".format(" ".join(possible_letters)))
+    while True:
+        found = False
+        human_word = input("Your word: ")
+        for char in human_word:
+            if char not in possible_letters:
+                print("Try again, dummy. Shit ain't in the possible letters!")
+                break
+            else:
+                found = True
+        if found:
+            break
+    # TODO word validity checking
+    print("A valid word! Let's see how this plays out.")
+    # TODO AI word generation
+    ai_word = "".join(random.choice(possible_letters) for x in range(0, 4))
+    print("The AI selects \"{}\".".format(ai_word))
 
-inputs = ["because cause", "hello below", "hit miss", "rekt pwn", "combo jumbo", "critical optical", "isoenzyme apoenzyme", "tribesman brainstem", "blames nimble", "yakuza wizard", "longbow blowup"]
-for words in inputs:
-    left, right = words.split()
-    print("{} and {} face off! Which will survive?".format(left, right))
+    left, right = human_word, ai_word
+    print("\n{} vs {}".format(left, right))
     for char in left + right:
         if char in left and char in right:
             left = left.replace(char, "", 1)
             right = right.replace(char, "", 1)
 
     if len(left) == len(right):
-        print("It's a tie! {} vs {}".format(left, right))
+        print("It's a tie! {} vs {}\nNo points to either side.".format(left, right))
     elif len(left) > len(right):
-        print("The left word wins, with \"{}\" left over!".format(left))
+        print("You had {} left over. {} points to you!".format(left, len(left)))
+        human_points = human_points + len(left)
     else:
-        print("The right word wins, with \"{}\" left over!".format(right))
+        print("The AI had {} left over. {} points to the AI.".format(right, len(right)))
+        ai_points = ai_points + len(right)
 
+if human_points == ai_points:
+    print("\nYou're both dumb-dumbs. God, why can't either of you win?!")
+elif human_points > ai_points:
+    print("\nThe human player wins the whole damn game, with {} points! Good job, meatbag!".format(human_points))
+else:
+    print("\nHAHAHA OH WOW. Damn, human, you suck. AI wins, with {} soul-crushing points.".format(ai_points))
