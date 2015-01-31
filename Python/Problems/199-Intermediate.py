@@ -41,3 +41,21 @@ Notes
 
 Thanks to /u/jnazario for yet another challenge!
 """
+
+seven_segment = [
+ " _     _  _     _  _  _  _  _ ",
+ "| |  | _| _||_||_ |_   ||_||_|",
+ "|_|  ||_  _|  | _||_|  ||_| _|"]
+
+test_input = ["000000000", "111111111", "490067715"]
+
+print_out = []
+for numbers in test_input:
+    for idx in range(0,3):
+        line = ""
+        for num in numbers:
+            line += seven_segment[idx][int(num) * 3:int(num) * 3 + 3]
+        print_out.append(line)
+
+for x in print_out:
+    print(x)
