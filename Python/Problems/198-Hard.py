@@ -87,28 +87,30 @@ ai_points = 0
 def get_human_input(letters):
     broke = False
     found = False
-    human_word = input("Your word: ")
-    possible_temp = "".join(letters)
-    for char in human_word:
-        if char in possible_temp:
-            possible_temp = possible_temp.replace(char, "", 1)
-        else:
-            print("Try again, dummy. Shit ain't in the possible letters!")
-            broke = True
+    while True:
+        human_word = input("Your word: ")
+        possible_temp = "".join(letters)
+        for char in human_word:
+            if char in possible_temp:
+                possible_temp = possible_temp.replace(char, "", 1)
+            else:
+                print("Try again, dummy. Shit ain't in the possible letters!")
+                broke = True
+                break
+        if not broke:
+            with open("american-english-insane", 'r') as dictionary:
+                for line in dictionary:
+                    if line.startswith(human_word):
+                        line = line.strip()
+                        if line == human_word:
+                            print("A valid word! Let's see how this plays out.")
+                            found = True
+                            break
+                if not found:
+                    print("Try again, idiot. Shit ain't a real word.")
+        if found:
             break
-    if not broke:
-        with open("american-english-insane", 'r') as dictionary:
-            for line in dictionary:
-                if line.startswith(human_word):
-                    line = line.strip()
-                    if line == human_word:
-                        print("A valid word! Let's see how this plays out.")
-                        found = True
-                        break
-            if not found:
-                print("Try again, idiot. Shit ain't a real word.")
-    if found:
-        return human_word
+    return human_word
 
 while turn < 5:
     turn = turn + 1
