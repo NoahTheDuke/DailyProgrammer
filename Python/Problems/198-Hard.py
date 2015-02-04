@@ -83,39 +83,42 @@ print("You have selected {}! - Let's begin!".format(['','Easy', 'Hard'][ai_diff]
 turn = 0
 human_points = 0
 ai_points = 0
+
+def get_human_input(letters):
+    broke = False
+    found = False
+    human_word = input("Your word: ")
+    possible_temp = "".join(letters)
+    for char in human_word:
+        if char in possible_temp:
+            possible_temp = possible_temp.replace(char, "", 1)
+        else:
+            print("Try again, dummy. Shit ain't in the possible letters!")
+            broke = True
+            break
+    if not broke:
+        with open("american-english-insane", 'r') as dictionary:
+            for line in dictionary:
+                if line.startswith(human_word):
+                    line = line.strip()
+                    if line == human_word:
+                        print("A valid word! Let's see how this plays out.")
+                        found = True
+                        break
+            if not found:
+                print("Try again, idiot. Shit ain't a real word.")
+    if found:
+        return human_word
+
 while turn < 5:
     turn = turn + 1
     print("\nTurn {} - You: {}  Computer: {}\n------------------------------".format(turn, human_points, ai_points))
     possible_letters = [random.choice(string.ascii_lowercase) for x in range(0, 12)]
     print("The letters: {}".format(" ".join(possible_letters)))
-    while True:
-        broke = False
-        found = False
-        human_word = input("Your word: ")
-        possible_temp = ""
-        for let in possible_letters:
-            possible_temp = possible_temp + let
-        for char in human_word:
-            if char in possible_temp:
-                possible_temp = possible_temp.replace(char, "", 1)
-            else:
-                print("Try again, dummy. Shit ain't in the possible letters!")
-                broke = True
-                break
-        if not broke:
-            with open("american-english-insane", 'r') as dictionary:
-                for line in dictionary:
-                    line = line.strip()
-                    if line.startswith(human_word):
-                        if line == human_word:
-                            print("A valid word! Let's see how this plays out.")
-                            found = True
-                            break
-                if not found:
-                    print("Try again, idiot. Shit ain't a real word.")
-        if found:
-            break
-    # TODO word validity checking
+
+    # human word input and validation
+    human_word = get_human_input(possible_letters)
+
     # TODO AI word generation
     ai_word = "".join(random.choice(possible_letters) for x in range(0, 4))
     print("The AI selects \"{}\".".format(ai_word))
