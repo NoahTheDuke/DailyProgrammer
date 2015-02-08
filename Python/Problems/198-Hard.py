@@ -84,33 +84,28 @@ turn = 0
 human_points = 0
 ai_points = 0
 
-def get_human_input(letters):
+def validate_human_input(human_input, letters, dictionary):
     broke = False
     found = False
-    while True:
-        human_word = input("Your word: ")
-        possible_temp = "".join(letters)
-        for char in human_word:
-            if char in possible_temp:
-                possible_temp = possible_temp.replace(char, "", 1)
-            else:
-                print("Try again, dummy. Shit ain't in the possible letters!")
-                broke = True
-                break
-        if not broke:
-            with open("american-english-insane", 'r') as dictionary:
-                for line in dictionary:
-                    if line.startswith(human_word):
-                        line = line.strip()
-                        if line == human_word:
-                            print("A valid word! Let's see how this plays out.")
-                            found = True
-                            break
-                if not found:
-                    print("Try again, idiot. Shit ain't a real word.")
-        if found:
+    possible_temp = "".join(letters)
+    for char in human_input:
+        if char in possible_temp:
+            possible_temp = possible_temp.replace(char, "", 1)
+        else:
+            print("Try again, dummy. Shit ain't in the possible letters!")
+            broke = True
             break
-    return human_word
+    if not broke:
+        for line in dictionary:
+            if line.startswith(human_input):
+                line = line.strip()
+                if line == human_input:
+                    print("A valid word! Let's see how this plays out.")
+                    found = True
+                    break
+        if not found:
+            print("Try again, idiot. Shit ain't a real word.")
+    return found
 
 while turn < 5:
     turn = turn + 1
@@ -119,7 +114,13 @@ while turn < 5:
     print("The letters: {}".format(" ".join(possible_letters)))
 
     # human word input and validation
-    human_word = get_human_input(possible_letters)
+    human_word = ""
+    with open("american-english-insane", 'r') as dictionary:
+        while True:
+            human_word = input("Your word: ")
+            human_word
+            if validate_human_input(human_word, possible_letters, dictionary):
+                break
 
     # TODO AI word generation
     ai_word = "".join(random.choice(possible_letters) for x in range(0, 4))
