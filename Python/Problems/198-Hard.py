@@ -77,53 +77,23 @@ Example of a UI flow:
 import string
 import random
 
-ai_diff = int(input("Welcome to Words with Enemies!\nSelect an AI difficulty:\n1) Easy\n2) Hard\n> "))
-print("You have selected {}! - Let's begin!".format(['','Easy', 'Hard'][ai_diff]))
-
-turn = 0
-human_points = 0
-ai_points = 0
-
-def validate_human_input(human_input, letters, dictionary):
-    broke = False
-    found = False
-    possible_temp = "".join(letters)
-    for char in human_input:
-        if char in possible_temp:
-            possible_temp = possible_temp.replace(char, "", 1)
-        else:
-            print("Try again, dummy. Shit ain't in the possible letters!")
-            broke = True
-            break
-    if not broke:
-        for line in dictionary:
-            if line.startswith(human_input):
-                line = line.strip()
-                if line == human_input:
-                    print("A valid word! Let's see how this plays out.")
-                    found = True
-                    break
-        if not found:
-            print("Try again, idiot. Shit ain't a real word.")
-    return found
-
-while turn < 5:
-    turn = turn + 1
+def round(turn, human_points, ai_points):
     print("\nTurn {} - You: {}  Computer: {}\n------------------------------".format(turn, human_points, ai_points))
-    possible_letters = [random.choice(string.ascii_lowercase) for x in range(0, 12)]
+    vowels = ['a','e','i','o','u']
+    consonants = ['b','c','d','g','h','j','k','l','m','n','p','q','r','s','t','v','w','x','y','z']
+    possible_letters = [random.choice(consonants) for x in range(0, 8)] + [random.choice(vowels) for x in range(0, 4)]
+    random.shuffle(possible_letters)
     print("The letters: {}".format(" ".join(possible_letters)))
 
     # human word input and validation
     human_word = ""
-    with open("american-english-insane", 'r') as dictionary:
-        while True:
-            human_word = input("Your word: ")
-            human_word
-            if validate_human_input(human_word, possible_letters, dictionary):
-                break
+    while True:
+        human_word = input("Your word: ")
+        if validate_human_input(human_word, possible_letters):
+            break
 
     # TODO AI word generation
-    ai_word = "".join(random.choice(possible_letters) for x in range(0, 4))
+    ai_word = generate_ai_word(possible_letters)
     print("The AI selects \"{}\".".format(ai_word))
 
     left, right = human_word, ai_word
@@ -141,10 +111,54 @@ while turn < 5:
     else:
         print("The AI had {} left over. {} points to the AI.".format(right, len(right)))
         ai_points = ai_points + len(right)
+    return human_points, ai_points
 
-if human_points == ai_points:
-    print("\nYou're both dumb-dumbs. God, why can't either of you win?!")
-elif human_points > ai_points:
-    print("\nThe human player wins the whole damn game, with {} points! Good job, meatbag!".format(human_points))
-else:
-    print("\nHAHAHA OH WOW. Damn, human, you suck. AI wins, with {} soul-crushing points.".format(ai_points))
+def generate_ai_word(possible_letters):
+    return "".join(random.choice(possible_letters) for x in range(0, 4))
+
+def validate_human_input(human_input, letters):
+    broke = False
+    found = False
+    possible_temp = "".join(letters)
+    for char in human_input:
+        if char in possible_temp:
+            possible_temp = possible_temp.replace(char, "", 1)
+        else:
+            print("Try again, dummy. Shit ain't in the possible letters!")
+            broke = True
+            break
+    if not broke:
+        with open("american-english-insane", 'r') as dictionary:
+            for line in dictionary:
+                if line.startswith(human_input):
+                    line = line.strip()
+                    if line == human_input:
+                        print("A valid word! Let's see how this plays out.")
+                        found = True
+                        break
+            if not found:
+                print("Try again, idiot. Shit ain't a real word.")
+    return found
+
+def main():
+    ai_diff = int(input("Welcome to Words with Enemies!\nSelect an AI difficulty:\n1) Easy\n2) Hard\n> "))
+    print("You have selected {}! - Let's begin!".format(['','Easy', 'Hard'][ai_diff]))
+
+    turn = 0
+    human_points = 0
+    ai_points = 0
+
+    while turn < 5:
+        turn = turn + 1
+        human_points, ai_points = round(turn, human_points, ai_points)
+
+    if human_points == ai_points:
+        print("\nYou're both dumb-dumbs. God, why can't either of you win?!")
+    elif human_points > ai_points:
+        print("\nThe human player wins the whole damn game, with {} points! Good job, meatbag!".format(human_points))
+    else:
+        print("\nHAHAHA OH WOW. Damn, human, you suck. AI wins, with {} soul-crushing points.".format(ai_points))
+
+
+if __name__ == "__main__":
+    main()
