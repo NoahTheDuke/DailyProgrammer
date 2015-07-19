@@ -38,6 +38,6 @@ print("Turn: {}".format(*turn))
 print("River: {}".format(*river))
 
 #def best_hand(blah blah):
-#   return "blah"
+#   return "blah."
 
 #print("Winner: {}, with a {}.".format(winner, best_hand))
